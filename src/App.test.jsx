@@ -1,14 +1,25 @@
 import { render, screen } from "@testing-library/react";
 
-import App from "./App"; // Your top-level component
+import App from "./App";
 
-describe("renders nested components with React Router", () => {
-  it("Should check that all the text is diplayed correctly when the first page is loaded in.", () => {
-    render(<App />);
-    const booking_text = screen.getAllByText("Booking");
-    // Verify the default UI
-    console.log(booking_text[0]);
-    expect(booking_text[0]).toBeInTheDocument();
-    expect(booking_text[1]).toBeInTheDocument();
+describe("App", () => {
+  it("Should check that if a user navigates to the confirmation page before booking the right messages displays.", () => {
+    render(
+      <>
+        <App />
+      </>
+    );
+
+    const navigate_button = screen.getAllByRole("img");
+    navigate_button[0].click();
+    const confirmation_button = screen.getByRole("link", {
+      name: "Confirmation",
+    });
+
+    confirmation_button.click();
+
+    render();
+
+    expect(screen.getByText("Inga bokning gjord!")).toBeInTheDocument();
   });
 });
