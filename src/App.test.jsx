@@ -26,6 +26,27 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe("App", () => {
+  it("Should check that a message is display if a user tries to create a booking without entering all the necessary information.", async () => {
+    render(
+      <>
+        <MemoryRouter initialEntries={["/Booking"]}>
+          <Routes>
+            <Route path="/Booking" element={<Booking />} />
+          </Routes>
+        </MemoryRouter>
+        {/* <Router>
+          <Booking />
+        </Router> */}
+      </>
+    );
+    const strike_button = screen.getAllByRole("button");
+    strike_button[1].click();
+    render();
+    expect(
+      screen.getByText("Alla fälten måste vara ifyllda")
+    ).toBeInTheDocument();
+  }); //Grön VG
+
   it("Should check that if a user navigates to the confirmation page before booking the right messages displays.", () => {
     render(
       <>
@@ -46,28 +67,6 @@ describe("App", () => {
     expect(screen.getByText("Inga bokning gjord!")).toBeInTheDocument();
   }); //Grön
 
-  it("Should check that a message is display if a user tries to create a booking without entering all the necessary information.", async () => {
-    render(
-      <>
-        <MemoryRouter initialEntries={["/Booking"]}>
-          <Routes>
-            <Route path="/Booking" element={<Booking />} />
-          </Routes>
-        </MemoryRouter>
-        {/* <Router>
-          <Booking />
-        </Router> */}
-      </>
-    );
-    const strike_button = screen.getAllByRole("button");
-    strike_button[1].click();
-    render();
-    expect(
-      screen.getByText("Alla fälten måste vara ifyllda")
-    ).toBeInTheDocument();
-  }); //Grön VG//Grön
-
-  ///Ska använda post inte get.
   it("Should check that a booking is displayed.", async () => {
     try {
       const response = await fetch(
