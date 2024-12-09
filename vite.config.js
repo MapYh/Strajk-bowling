@@ -15,6 +15,7 @@ export default defineConfig({
       functions: 90, // Enforce 90% function coverage
       branches: 90, // Enforce 90% branch coverage
       statements: 90, // Enforce 90% statement coverage
+      checkCoverage: true,
     },
   },
 });
