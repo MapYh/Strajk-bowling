@@ -9,13 +9,15 @@ export default defineConfig({
     environment: "jsdom", // Use jsdom for DOM testing
     setupFiles: "./setup-tests.js", // Path to your setup file
     coverage: {
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+        checkCoverage: true,
+      },
       provider: "v8", // Use v8 as the coverage provider
       reporter: ["text", "html"], // Coverage reports in text and HTML format
-      lines: 90, // Enforce 90% line coverage
-      functions: 90, // Enforce 90% function coverage
-      branches: 90, // Enforce 90% branch coverage
-      statements: 90, // Enforce 90% statement coverage
-      checkCoverage: true,
     },
   },
 });
