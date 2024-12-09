@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, userEvent } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
 import { setupServer } from "msw/node";
@@ -25,7 +25,7 @@ afterEach(() => {
 
 afterAll(() => server.close());
 
-describe("App", () => {
+describe("Booking", () => {
   it("Should check that a message is display if a user tries to create a booking without entering all the necessary information.", async () => {
     render(
       <>
