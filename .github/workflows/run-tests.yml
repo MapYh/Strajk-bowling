@@ -31,3 +31,8 @@ jobs:
       # Step 4: Run Vitest tests with coverage
       - name: Run tests with coverage enforcement
         run: npm run test
+        continue-on-error: false # Detta säkerställer att jobbet inte fortsätter om täckningen inte är tillräcklig
+
+      - name: Fail deploy if coverage < 90%
+        if: failure() # Kollar om testerna misslyckades
+        run: echo "Tests failed due to coverage threshold not being met. Aborting deployment."
