@@ -96,68 +96,42 @@ describe("App", () => {
 
     const number = screen.getByLabelText("Number of awesome bowlers");
     const number_of_lanes = screen.getByLabelText("Number of lanes");
-    const buttons = screen.getAllByRole("button");
-
     //Used to fill in the booking info.
-    const input = screen.getByLabelText(/Date/i);
+    const dateInput = screen.getByLabelText(/Date/i);
     const timeInput = screen.getByLabelText(/Time/i);
-    fireEvent.change(input, { target: { value: "2024-12-08" } });
+    fireEvent.change(dateInput, { target: { value: "2024-12-08" } });
     fireEvent.change(timeInput, { target: { value: "14:30" } });
-    expect(input.value).toBe("2024-12-08");
-    expect(timeInput.value).toBe("14:30");
-
-    //Simulate the adding of the shoes for the bowlers.
-    buttons[0].click();
-    render();
-    const shoe_one = screen.getByLabelText("Shoe size / person 1");
-    fireEvent.change(shoe_one, { target: { value: "33" } });
-    expect(shoe_one.value).toBe("33");
-
-    buttons[0].click();
-    render();
-    const shoe_two = screen.getByLabelText("Shoe size / person 2");
-    fireEvent.change(shoe_two, { target: { value: "45" } });
-    expect(shoe_two.value).toBe("45");
-
-    buttons[0].click();
-    render();
-    const shoe_three = screen.getByLabelText("Shoe size / person 3");
-    fireEvent.change(shoe_three, { target: { value: "34" } });
-    expect(shoe_three.value).toBe("34");
-
-    buttons[0].click();
-    render();
-    const shoe_four = screen.getByLabelText("Shoe size / person 4");
-    fireEvent.change(shoe_four, { target: { value: "23" } });
-    expect(shoe_four.value).toBe("23");
-
-    buttons[0].click();
-    render();
-    const shoe_five = screen.getByLabelText("Shoe size / person 5");
-    fireEvent.change(shoe_five, { target: { value: "32" } });
-    expect(shoe_five.value).toBe("32");
-    //End----Simulate the adding of the shoes for the bowlers.
-
     //Choose the mumber of lanes and bowlers.
     fireEvent.change(number_of_lanes, { target: { value: "1" } });
-    expect(number_of_lanes.value).toBe("1");
     fireEvent.change(number, { target: { value: "5" } });
+    //Confirmation of the booking numbers
+    expect(dateInput.value).toBe("2024-12-08");
+    expect(timeInput.value).toBe("14:30");
+    expect(number_of_lanes.value).toBe("1");
     expect(number.value).toBe("5");
-    fireEvent.change(number_of_lanes, { target: { value: "1" } });
+    //Click all the shoe buttons
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(screen.getByText("+"));
+    }
+    //Enter all the shoe sizes.
+    for (let index = 1; index < 6; index++) {
+      let shoe = screen.getByLabelText(`Shoe size / person ${index}`);
+      fireEvent.change(shoe, { target: { value: `3${index}` } });
+      expect(shoe.value).toBe(`3${index}`);
+    }
 
     //Get all the buttons to find the strike button so that the error message can be checked.
     const strike_button = screen.getAllByRole("button");
-    strike_button[6].click();
-    render();
+    fireEvent.click(strike_button[6]);
+
     expect(
       screen.getByText("Det får max vara 4 spelare per bana")
     ).toBeInTheDocument();
 
     //Change the number of lanes to two.
     fireEvent.change(number_of_lanes, { target: { value: "2" } });
-    render();
     expect(number_of_lanes.value).toBe("2");
-    console.log(strike_button[6]);
+    //Making sure that clicking the strike button takes the user to the confirmation page.
     strike_button[6].click();
     render(
       <>
