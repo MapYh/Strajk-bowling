@@ -10,10 +10,10 @@ export default defineConfig({
     setupFiles: "./setup-tests.js", // Path to your setup file
     coverage: {
       thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 80,
-        statements: 80,
+        lines: 90,
+        functions: 90,
+        branches: 90,
+        statements: 90,
         checkCoverage: true,
       },
       provider: "v8", // Use v8 as the coverage provider

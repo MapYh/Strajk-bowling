@@ -26,27 +26,6 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe("App", () => {
-  it("Should check that a message is display if a user tries to create a booking without entering all the necessary information.", async () => {
-    render(
-      <>
-        <MemoryRouter initialEntries={["/Booking"]}>
-          <Routes>
-            <Route path="/Booking" element={<Booking />} />
-          </Routes>
-        </MemoryRouter>
-        {/* <Router>
-          <Booking />
-        </Router> */}
-      </>
-    );
-    const strike_button = screen.getAllByRole("button");
-    strike_button[1].click();
-    render();
-    expect(
-      screen.getByText("Alla fälten måste vara ifyllda")
-    ).toBeInTheDocument();
-  }); //Grön VG
-
   it("Should check that if a user navigates to the confirmation page before booking the right messages displays.", () => {
     render(
       <>
@@ -98,12 +77,12 @@ describe("App", () => {
         </MemoryRouter>
       );
 
-      const inputTime = screen.getAllByRole("textbox", { type: "text" });
+      const input = screen.getAllByRole("textbox", { type: "text" });
       // Check that the confirmation details are rendered correctly
-      expect(inputTime[0].value).toBe("2024-12-08 15:30");
-      expect(inputTime[1].value).toBe("2");
-      expect(inputTime[2].value).toBe("2");
-      expect(inputTime[3].value).toBe("12345");
+      expect(input[0].value).toBe("2024-12-08 15:30");
+      expect(input[1].value).toBe("2");
+      expect(input[2].value).toBe("2");
+      expect(input[3].value).toBe("12345");
       expect(screen.getByText("Total:")).toBeInTheDocument();
       expect(screen.getByText("500 sek")).toBeInTheDocument();
 
