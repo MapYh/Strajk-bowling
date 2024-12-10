@@ -1,10 +1,11 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, userEvent } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
 import { setupServer } from "msw/node";
 import { handlers } from "../mocks/handlers";
 
 import Booking from "../views/Booking";
+import Navigation from "../components/Navigation/Navigation";
 import Confirmation from "../views/Confirmation";
 
 export const server = setupServer(...handlers);
@@ -346,7 +347,7 @@ describe("Booking", () => {
     shoes_delete_button = screen.getAllByText("-");
     expect(shoes_delete_button.length).toBe(4);
   });
-  ///
+  ///Confirmation component.
   it("Should check that a user can finish a booking.", async () => {
     try {
       render(

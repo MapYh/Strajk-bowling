@@ -1,11 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
 import { setupServer } from "msw/node";
 import { handlers } from "./mocks/handlers.js";
 
 import App from "./App";
-import Booking from "./views/Booking";
+
 import Confirmation from "./views/Confirmation";
 export const server = setupServer(...handlers);
 // Start the mock server before all tests
@@ -39,12 +39,35 @@ describe("App", () => {
       name: "Confirmation",
     });
 
-    confirmation_button.click();
-    sessionStorage.clear();
-    render();
+    fireEvent.click(confirmation_button);
 
     expect(screen.getByText("Inga bokning gjord!")).toBeInTheDocument();
-  }); //Grön
+  });
+
+  it("Should check that user can navigate.", async () => {
+    render(
+      <>
+        <App />
+      </>
+    );
+
+    const navigate_button = screen.getAllByRole("img");
+    navigate_button[0].click();
+    const confirmation_button = screen.getByRole("link", {
+      name: "Confirmation",
+    });
+
+    fireEvent.click(confirmation_button);
+
+    expect(screen.getByText("Inga bokning gjord!")).toBeInTheDocument();
+    navigate_button[0].click();
+    const booking_button = screen.getByRole("link", {
+      name: "Booking",
+    });
+    fireEvent.click(confirmation_button);
+
+    expect(screen.getByText("Booking")).toBeInTheDocument();
+  });
 
   it("Should check that a booking is displayed.", async () => {
     try {
@@ -89,7 +112,7 @@ describe("App", () => {
       // Check that the "Inga bokning gjord!" text is NOT displayed
       expect(screen.queryByText("Inga bokning gjord!")).toBeNull();
     } catch (error) {}
-  }); //Grön
+  });
 
   it("Should check that user can navigate from the booking page to the confirmation page when the booking is done.", async () => {
     try {
@@ -159,5 +182,5 @@ describe("App", () => {
       confirmation_button.click();
       expect(screen.getByText("See you soon!")).toBeInTheDocument();
     } catch (error) {}
-  }); //Grön
+  });
 });
