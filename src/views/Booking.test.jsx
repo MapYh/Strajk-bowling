@@ -42,7 +42,7 @@ describe("Booking", () => {
     expect(
       screen.getByText("Alla fälten måste vara ifyllda")
     ).toBeInTheDocument();
-  }); //Grön VG
+  });
 
   it("Should check that a user can choose a date and a time from a calender.", async () => {
     render(
@@ -196,6 +196,7 @@ describe("Booking", () => {
       fireEvent.change(shoe, { target: { value: `3${index}` } });
       expect(shoe.value).toBe(`3${index}`);
     }
+    //Change the shoe sizes.
     for (let index = 1; index < 6; index++) {
       let shoe = screen.getByLabelText(`Shoe size / person ${index}`);
       fireEvent.change(shoe, { target: { value: `3${index + 2}` } });
@@ -289,7 +290,7 @@ describe("Booking", () => {
     ).toBeInTheDocument();
   });
 
-  it("Should check that is a overview of all the shoes before the booking is confirmed.", async () => {
+  it("Should check that there is a overview of all the shoes before the booking is confirmed.", async () => {
     render(
       <>
         <MemoryRouter initialEntries={["/Booking"]}>
@@ -317,5 +318,33 @@ describe("Booking", () => {
 
     const shoes = screen.getAllByText("-");
     expect(shoes.length).toBe(5);
+  });
+  it("Should check that user can delete a shoe input field.", async () => {
+    render(
+      <>
+        <MemoryRouter initialEntries={["/Booking"]}>
+          <Routes>
+            <Route path="/booking" element={<Booking />} />
+          </Routes>
+        </MemoryRouter>
+      </>
+    );
+
+    //Click the add shoes button.
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(screen.getByText("+"));
+    }
+    let shoes_delete_button = screen.getAllByText("-");
+    expect(shoes_delete_button.length).toBe(5);
+
+    //Enter all the shoe sizes except one.
+    for (let index = 1; index < 5; index++) {
+      let shoe = screen.getByLabelText(`Shoe size / person ${index}`);
+      fireEvent.change(shoe, { target: { value: `3${index}` } });
+      expect(shoe.value).toBe(`3${index}`);
+    }
+    fireEvent.click(shoes_delete_button[0]);
+    shoes_delete_button = screen.getAllByText("-");
+    expect(shoes_delete_button.length).toBe(4);
   });
 });
