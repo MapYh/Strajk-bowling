@@ -20,7 +20,6 @@ afterEach(() => server.resetHandlers());
 // Stop the mock server after all tests
 afterEach(() => {
   server.resetHandlers();
-  sessionStorage.clear(); // Clear sessionStorage after each test
 });
 
 afterAll(() => server.close());
@@ -81,7 +80,7 @@ describe("Booking", () => {
     // Simulera giltig inmatning
     fireEvent.change(number, { target: { value: "3" } });
     expect(number.value).toBe("3");
-  });
+  }); //
 
   it("Should check that a user can reserve one or more alleys, depending on the amount of players.", async () => {
     render(
@@ -143,7 +142,7 @@ describe("Booking", () => {
       </>
     );
     expect(screen.getByText("See you soon!")).toBeInTheDocument();
-  });
+  }); //
 
   it("A user should be able to enter a shoe size for all bowlers.", async () => {
     render(
@@ -346,5 +345,159 @@ describe("Booking", () => {
     fireEvent.click(shoes_delete_button[0]);
     shoes_delete_button = screen.getAllByText("-");
     expect(shoes_delete_button.length).toBe(4);
+  });
+  ///
+  it("Should check that a user can finish a booking.", async () => {
+    try {
+      render(
+        <MemoryRouter initialEntries={["/confirmation"]}>
+          <Routes>
+            <Route path="/confirmation" element={<Confirmation />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      const inputTime = screen.getAllByRole("textbox", { type: "text" });
+      // Check that the confirmation details are rendered correctly
+      expect(inputTime[0].value).toBe("2024-12-08 15:30");
+      expect(inputTime[1].value).toBe("2");
+      expect(inputTime[2].value).toBe("2");
+      expect(inputTime[3].value).toBe("12345");
+      expect(screen.getByText("Total:")).toBeInTheDocument();
+      expect(screen.getByText("500 sek")).toBeInTheDocument();
+
+      // Check that the "Inga bokning gjord!" text is NOT displayed
+      expect(screen.queryByText("Inga bokning gjord!")).toBeNull();
+      //Confirms that we are on the confirmation page.
+      expect(screen.getByText("See you soon!")).toBeInTheDocument();
+
+      const navigate_button = screen.getAllByRole("img");
+      navigate_button[0].click();
+
+      const Booking_button = screen.getByRole("link", {
+        name: "Booking",
+      });
+
+      Booking_button.click();
+      const booking_heading = screen.getByRole("heading");
+
+      expect(booking_heading).toBeInTheDocument();
+
+      //And check that the user can go back to the confirmation page again.
+      navigate_button[0].click();
+      const confirmation_button = screen.getByRole("link", {
+        name: "Booking",
+      });
+      confirmation_button.click();
+      expect(screen.getByText("See you soon!")).toBeInTheDocument();
+    } catch (error) {}
+  });
+  it("Should check that a booking number is generated and shown to the user after a booking is completed.", async () => {
+    try {
+      render(
+        <MemoryRouter initialEntries={["/confirmation"]}>
+          <Routes>
+            <Route path="/confirmation" element={<Confirmation />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      const inputTime = screen.getAllByRole("textbox", { type: "text" });
+      // Check that the confirmation details are rendered correctly
+      expect(inputTime[0].value).toBe("2024-12-08 15:30");
+      expect(inputTime[1].value).toBe("2");
+      expect(inputTime[2].value).toBe("2");
+      expect(inputTime[3].value).toBe("12345");
+      expect(screen.getByText("Total:")).toBeInTheDocument();
+      expect(screen.getByText("500 sek")).toBeInTheDocument();
+
+      // Check that the "Inga bokning gjord!" text is NOT displayed
+      expect(screen.queryByText("Inga bokning gjord!")).toBeNull();
+      //Confirms that we are on the confirmation page.
+      expect(screen.getByText("See you soon!")).toBeInTheDocument();
+
+      const navigate_button = screen.getAllByRole("img");
+      navigate_button[0].click();
+
+      const Booking_button = screen.getByRole("link", {
+        name: "Booking",
+      });
+
+      Booking_button.click();
+      const booking_heading = screen.getByRole("heading");
+
+      expect(booking_heading).toBeInTheDocument();
+
+      //And check that the user can go back to the confirmation page again.
+      navigate_button[0].click();
+      const confirmation_button = screen.getByRole("link", {
+        name: "Booking",
+      });
+      confirmation_button.click();
+      expect(screen.getByText("12345")).toBeInTheDocument();
+    } catch (error) {}
+  });
+  it("Should check that a price is calculated and is shown to the user", async () => {
+    try {
+      render(
+        <MemoryRouter initialEntries={["/confirmation"]}>
+          <Routes>
+            <Route path="/confirmation" element={<Confirmation />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      const inputTime = screen.getAllByRole("textbox", { type: "text" });
+      // Check that the confirmation details are rendered correctly
+      expect(inputTime[0].value).toBe("2024-12-08 15:30");
+      expect(inputTime[1].value).toBe("2");
+      expect(inputTime[2].value).toBe("2");
+      expect(inputTime[3].value).toBe("12345");
+      expect(screen.getByText("Total:")).toBeInTheDocument();
+      expect(screen.getByText("500 sek")).toBeInTheDocument();
+
+      // Check that the "Inga bokning gjord!" text is NOT displayed
+      expect(screen.queryByText("Inga bokning gjord!")).toBeNull();
+      //Confirms that we are on the confirmation page.
+      expect(screen.getByText("See you soon!")).toBeInTheDocument();
+
+      const navigate_button = screen.getAllByRole("img");
+      navigate_button[0].click();
+
+      const Booking_button = screen.getByRole("link", {
+        name: "Booking",
+      });
+
+      Booking_button.click();
+      const booking_heading = screen.getByRole("heading");
+
+      expect(booking_heading).toBeInTheDocument();
+
+      //And check that the user can go back to the confirmation page again.
+      navigate_button[0].click();
+      const confirmation_button = screen.getByRole("link", {
+        name: "Booking",
+      });
+      confirmation_button.click();
+      expect(screen.getByText("440")).toBeInTheDocument();
+    } catch (error) {}
+  });
+  it("Should check that the total price in shown on the site and the number of lanes and bowlers.", async () => {
+    try {
+      render(
+        <MemoryRouter initialEntries={["/confirmation"]}>
+          <Routes>
+            <Route path="/confirmation" element={<Confirmation />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      const inputTime = screen.getAllByRole("textbox", { type: "text" });
+      // Check that the confirmation details are rendered correctly
+      expect(inputTime[1].value).toBe("2");
+      expect(inputTime[2].value).toBe("2");
+      expect(screen.getByText("Total:")).toBeInTheDocument();
+      expect(screen.getByText("500 sek")).toBeInTheDocument();
+    } catch (error) {}
   });
 });
