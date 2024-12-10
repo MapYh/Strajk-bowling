@@ -23,24 +23,6 @@ afterEach(() => {
 });
 
 describe("Booking", () => {
-  it("Should check that a message is display if a user tries to create a booking without entering all the necessary information.", async () => {
-    render(
-      <>
-        <MemoryRouter initialEntries={["/Booking"]}>
-          <Routes>
-            <Route path="/Booking" element={<Booking />} />
-          </Routes>
-        </MemoryRouter>
-      </>
-    );
-    const strike_button = screen.getAllByRole("button");
-    strike_button[1].click();
-    render();
-    expect(
-      screen.getByText("Alla fälten måste vara ifyllda")
-    ).toBeInTheDocument();
-  });
-
   it("Should check that a user can choose a date and a time from a calender.", async () => {
     render(
       <>
@@ -79,13 +61,45 @@ describe("Booking", () => {
     fireEvent.change(number, { target: { value: "3" } });
     expect(number.value).toBe("3");
   }); //
-
+  it("Should check that a message is display if a user tries to create a booking without entering all the necessary information.", async () => {
+    render(
+      <>
+        <MemoryRouter initialEntries={["/Booking"]}>
+          <Routes>
+            <Route path="/Booking" element={<Booking />} />
+          </Routes>
+        </MemoryRouter>
+      </>
+    );
+    const strike_button = screen.getAllByRole("button");
+    strike_button[1].click();
+    render();
+    expect(
+      screen.getByText("Alla fälten måste vara ifyllda")
+    ).toBeInTheDocument();
+  });
   it("Should check that a user can reserve one or more alleys, depending on the amount of players.", async () => {
+    server.use(
+      http.post(
+        "https://h5jbtjv6if.execute-api.eu-north-1.amazonaws.com",
+        () => {
+          return HttpResponse.json({
+            id: "12345",
+            price: 440,
+            when: "2024-12-08T15:30",
+            people: "2",
+            lanes: "2",
+          });
+        }
+      )
+    );
+
     render(
       <>
         <MemoryRouter initialEntries={["/Booking"]}>
           <Routes>
             <Route path="/booking" element={<Booking />} />
+            <Route path="/confirmation" element={<Confirmation />} />
           </Routes>
         </MemoryRouter>
       </>
@@ -118,8 +132,7 @@ describe("Booking", () => {
     }
 
     //Get all the buttons to find the strike button so that the error message can be checked.
-    const strike_button = screen.getAllByRole("button");
-    fireEvent.click(strike_button[6]);
+    fireEvent.click(screen.getByText(/strIIIIIike!/i));
 
     expect(
       screen.getByText("Det får max vara 4 spelare per bana")
@@ -129,19 +142,14 @@ describe("Booking", () => {
     fireEvent.change(number_of_lanes, { target: { value: "2" } });
     expect(number_of_lanes.value).toBe("2");
     //Making sure that clicking the strike button takes the user to the confirmation page.
-    strike_button[6].click();
-    render(
-      <>
-        <MemoryRouter initialEntries={["/confirmation"]}>
-          <Routes>
-            <Route path="/confirmation" element={<Confirmation />} />
-          </Routes>
-        </MemoryRouter>
-      </>
-    );
-    expect(screen.getByText("See you soon!")).toBeInTheDocument();
-  }); //
+    fireEvent.click(screen.getByText(/strIIIIIike!/i));
 
+    await waitFor(() => {
+      expect(screen.getByText(/See you soon!/i)).toBeInTheDocument();
+    });
+  });
+
+  //Shoes
   it("A user should be able to enter a shoe size for all bowlers.", async () => {
     render(
       <>
@@ -200,50 +208,6 @@ describe("Booking", () => {
       expect(shoe.value).toBe(`3${index + 2}`);
     }
   });
-
-  it("Should check that the correct amount players and shoes is equal.", async () => {
-    render(
-      <>
-        <MemoryRouter initialEntries={["/Booking"]}>
-          <Routes>
-            <Route path="/booking" element={<Booking />} />
-          </Routes>
-        </MemoryRouter>
-      </>
-    );
-
-    //Used to fill in the booking info.
-    const number = screen.getByLabelText("Number of awesome bowlers");
-    const number_of_lanes = screen.getByLabelText("Number of lanes");
-    const dateInput = screen.getByLabelText(/Date/i);
-    const timeInput = screen.getByLabelText(/Time/i);
-    fireEvent.change(dateInput, { target: { value: "2024-12-08" } });
-    fireEvent.change(timeInput, { target: { value: "14:30" } });
-    //Choose the mumber of lanes and bowlers.
-    fireEvent.change(number_of_lanes, { target: { value: "2" } });
-    fireEvent.change(number, { target: { value: "5" } });
-    //Confirmation of the booking numbers
-    expect(dateInput.value).toBe("2024-12-08");
-    expect(timeInput.value).toBe("14:30");
-    expect(number_of_lanes.value).toBe("2");
-    expect(number.value).toBe("5");
-
-    //Click all the shoe buttons.
-    for (let i = 0; i < 4; i++) {
-      fireEvent.click(screen.getByText("+"));
-    }
-    //Enter all the shoe sizes except one.
-    for (let index = 1; index < 5; index++) {
-      let shoe = screen.getByLabelText(`Shoe size / person ${index}`);
-      fireEvent.change(shoe, { target: { value: `3${index}` } });
-      expect(shoe.value).toBe(`3${index}`);
-    }
-    const strike_button = screen.getAllByRole("button");
-    fireEvent.click(strike_button[5]);
-    expect(
-      screen.getByText("Antalet skor måste stämma överens med antal spelare")
-    ).toBeInTheDocument();
-  });
   it("Should check that all the bowlers have entered a shoe size.", async () => {
     render(
       <>
@@ -286,7 +250,50 @@ describe("Booking", () => {
       screen.getByText("Alla skor måste vara ifyllda")
     ).toBeInTheDocument();
   });
+  it("Should check that the amount of players and shoes needed is equal.", async () => {
+    render(
+      <>
+        <MemoryRouter initialEntries={["/Booking"]}>
+          <Routes>
+            <Route path="/booking" element={<Booking />} />
+          </Routes>
+        </MemoryRouter>
+      </>
+    );
 
+    //Used to fill in the booking info.
+    const number = screen.getByLabelText("Number of awesome bowlers");
+    const number_of_lanes = screen.getByLabelText("Number of lanes");
+    const dateInput = screen.getByLabelText(/Date/i);
+    const timeInput = screen.getByLabelText(/Time/i);
+    fireEvent.change(dateInput, { target: { value: "2024-12-08" } });
+    fireEvent.change(timeInput, { target: { value: "14:30" } });
+    //Choose the mumber of lanes and bowlers.
+    fireEvent.change(number_of_lanes, { target: { value: "2" } });
+    fireEvent.change(number, { target: { value: "5" } });
+    //Confirmation of the booking numbers
+    expect(dateInput.value).toBe("2024-12-08");
+    expect(timeInput.value).toBe("14:30");
+    expect(number_of_lanes.value).toBe("2");
+    expect(number.value).toBe("5");
+
+    //Click all the shoe buttons.
+    //The number of shoes is one less than the amount of players.
+    for (let i = 0; i < 4; i++) {
+      fireEvent.click(screen.getByText("+"));
+    }
+    //Enter all the shoe sizes except one.
+    for (let index = 1; index < 5; index++) {
+      let shoe = screen.getByLabelText(`Shoe size / person ${index}`);
+      fireEvent.change(shoe, { target: { value: `3${index}` } });
+      expect(shoe.value).toBe(`3${index}`);
+    }
+    const strike_button = screen.getAllByRole("button");
+    fireEvent.click(strike_button[5]);
+    expect(
+      screen.getByText("Antalet skor måste stämma överens med antal spelare")
+    ).toBeInTheDocument();
+  });
   it("Should check that there is a overview of all the shoes before the booking is confirmed.", async () => {
     render(
       <>
@@ -316,6 +323,7 @@ describe("Booking", () => {
     const shoes = screen.getAllByText("-");
     expect(shoes.length).toBe(5);
   });
+
   it("Should check that user can delete a shoe input field.", async () => {
     render(
       <>
@@ -399,7 +407,6 @@ describe("Booking", () => {
       expect(confirmation.price).toBe(440);
     });
   });
-
   ///Confirmation component.
 
   it("Should check that a booking number is generated and shown to the user after a booking is completed.", async () => {
@@ -528,7 +535,7 @@ describe("Booking", () => {
   });
 
   it("Should check that a booking is displayed.", async () => {
-    // Mock the server response first
+    //Mock server response
     server.use(
       http.post(
         "https://h5jbtjv6if.execute-api.eu-north-1.amazonaws.com",
@@ -550,7 +557,7 @@ describe("Booking", () => {
         </Routes>
       </MemoryRouter>
     );
-
+    //Fill the booking fields.
     fireEvent.change(screen.getByLabelText(/date/i), {
       target: { value: "2024-12-08" },
     });
@@ -574,7 +581,7 @@ describe("Booking", () => {
       fireEvent.change(shoe, { target: { value: `3${index}` } });
       expect(shoe.value).toBe(`3${index}`);
     }
-
+    //End of fill.
     fireEvent.click(screen.getByText(/strIIIIIike!/i));
     await waitFor(() => {
       const storedData = sessionStorage.getItem("confirmation");
