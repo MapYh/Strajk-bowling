@@ -40,7 +40,7 @@ describe("App", () => {
     expect(screen.getByText("Inga bokning gjord!")).toBeInTheDocument();
   });
 
-  it("Should check the navigaton from the booking page to the confirmation page when a booking is done.", async () => {
+  it("Should check the navigaton from the booking page to the confirmation page when a booking is done. and checks the navigation to and from the confirmation page when a booking is done.", async () => {
     //Mock server response
     server.use(
       http.post(
@@ -118,6 +118,7 @@ describe("App", () => {
       name: "Confirmation",
     });
     fireEvent.click(confirmation_button);
+    //Make sure that the user is seeing the correct booking.
     const when = screen.getByLabelText(/when/i);
     const who = screen.getByLabelText(/who/i);
     const lanes = screen.getByLabelText(/lanes/i);
@@ -127,7 +128,7 @@ describe("App", () => {
     expect(who.value).toBe("2");
     expect(lanes.value).toBe("2");
     expect(booking_number.value).toBe("12345");
-    expect(screen.getByText("Total:")).toBeInTheDocument();
+    expect(screen.getByText(/Total:/i)).toBeInTheDocument();
     expect(screen.getByText("440 sek")).toBeInTheDocument();
   });
 });
