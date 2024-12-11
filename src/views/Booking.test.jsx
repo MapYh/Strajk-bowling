@@ -131,8 +131,8 @@ describe("Booking", () => {
     await waitFor(() => {
       expect(screen.getByText(/See you soon!/i)).toBeInTheDocument();
     });
-  }); //VG
-  it("Should check that a message is display if a user tries to create a booking without entering all the necessary information.", async () => {
+  });
+  it("Should check that a message is displayd if a user tries to create a booking without entering all the necessary information.", async () => {
     render(
       <>
         <MemoryRouter initialEntries={["/Booking"]}>
@@ -148,7 +148,40 @@ describe("Booking", () => {
     expect(
       screen.getByText("Alla fälten måste vara ifyllda")
     ).toBeInTheDocument();
-  }); //VG
+
+    fireEvent.change(screen.getByLabelText(/Date/i), {
+      target: { value: "2024-12-08" },
+    });
+    fireEvent.click(screen.getByText(/strIIIIIike!/i));
+    expect(
+      screen.getByText("Alla fälten måste vara ifyllda")
+    ).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/Time/i), {
+      target: { value: "15:30" },
+    });
+    fireEvent.click(screen.getByText(/strIIIIIike!/i));
+    expect(
+      screen.getByText("Alla fälten måste vara ifyllda")
+    ).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/Number of awesome bowlers/i), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByText(/strIIIIIike!/i));
+    expect(
+      screen.getByText("Alla fälten måste vara ifyllda")
+    ).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/Number of lanes/i), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByText(/strIIIIIike!/i));
+    expect(
+      screen.getByText("Antalet skor måste stämma överens med antal spelare")
+    ).toBeInTheDocument();
+    //The error messages for the shoes section is in other test.
+  });
   //Shoes
   it("A user should be able to enter a shoe size for all bowlers.", async () => {
     render(
@@ -249,7 +282,7 @@ describe("Booking", () => {
     expect(
       screen.getByText("Alla skor måste vara ifyllda")
     ).toBeInTheDocument();
-  }); //VG
+  });
   it("Should check that the amount of players and shoes needed is equal.", async () => {
     render(
       <>
@@ -424,8 +457,6 @@ describe("Booking", () => {
       expect(confirmation.price).toBe(440);
     });
   });
-  ///Confirmation component.
-
   it("Should check that a booking number is generated and shown to the user after a booking is completed.", async () => {
     server.use(
       http.post(
@@ -531,6 +562,8 @@ describe("Booking", () => {
       const storedData = sessionStorage.getItem("confirmation");
       expect(storedData).toBeTruthy();
       const confirmation = JSON.parse(storedData);
+      expect(confirmation.lanes).toBe("2");
+      expect(confirmation.people).toBe("2");
       expect(confirmation.price).toBe(440);
     });
   });
@@ -549,66 +582,5 @@ describe("Booking", () => {
     expect(input[2].value).toBe("2");
     expect(screen.getByText("Total:")).toBeInTheDocument();
     expect(screen.getByText("440 sek")).toBeInTheDocument();
-  });
-
-  it("Should check that a booking is displayed.", async () => {
-    //Mock server response
-    server.use(
-      http.post(
-        "https://h5jbtjv6if.execute-api.eu-north-1.amazonaws.com",
-        () => {
-          return HttpResponse.json({
-            when: "2024-12-08T15:30",
-            people: "2",
-            lanes: "2",
-            id: "12345",
-            price: "440",
-          });
-        }
-      )
-    );
-    render(
-      <MemoryRouter initialEntries={["/booking"]}>
-        <Routes>
-          <Route path="/Booking" element={<Booking />} />
-        </Routes>
-      </MemoryRouter>
-    );
-    //Fill the booking fields.
-    fireEvent.change(screen.getByLabelText(/date/i), {
-      target: { value: "2024-12-08" },
-    });
-
-    fireEvent.change(screen.getByLabelText(/time/i), {
-      target: { value: "15:30" },
-    });
-
-    fireEvent.change(screen.getByLabelText(/Number of awesome bowlers/i), {
-      target: { value: "2" },
-    });
-
-    fireEvent.change(screen.getByLabelText(/Number of lanes/i), {
-      target: { value: "2" },
-    });
-    for (let i = 0; i < 2; i++) {
-      fireEvent.click(screen.getByText("+"));
-    }
-    for (let index = 1; index < 3; index++) {
-      let shoe = screen.getByLabelText(`Shoe size / person ${index}`);
-      fireEvent.change(shoe, { target: { value: `3${index}` } });
-      expect(shoe.value).toBe(`3${index}`);
-    }
-    //End of fill.
-    fireEvent.click(screen.getByText(/strIIIIIike!/i));
-    await waitFor(() => {
-      const storedData = sessionStorage.getItem("confirmation");
-      expect(storedData).toBeTruthy();
-      const confirmation = JSON.parse(storedData);
-      expect(confirmation.price).toBe("440");
-      expect(confirmation.people).toBe("2");
-      expect(confirmation.lanes).toBe("2");
-      expect(confirmation.when).toBe("2024-12-08T15:30");
-      expect(confirmation.id).toBe("12345");
-    });
   });
 });
