@@ -61,23 +61,7 @@ describe("Booking", () => {
     fireEvent.change(number, { target: { value: "3" } });
     expect(number.value).toBe("3");
   }); //
-  it("Should check that a message is display if a user tries to create a booking without entering all the necessary information.", async () => {
-    render(
-      <>
-        <MemoryRouter initialEntries={["/Booking"]}>
-          <Routes>
-            <Route path="/Booking" element={<Booking />} />
-          </Routes>
-        </MemoryRouter>
-      </>
-    );
-    const strike_button = screen.getAllByRole("button");
-    strike_button[1].click();
-    render();
-    expect(
-      screen.getByText("Alla fälten måste vara ifyllda")
-    ).toBeInTheDocument();
-  });
+
   it("Should check that a user can reserve one or more alleys, depending on the amount of players.", async () => {
     server.use(
       http.post(
@@ -147,8 +131,24 @@ describe("Booking", () => {
     await waitFor(() => {
       expect(screen.getByText(/See you soon!/i)).toBeInTheDocument();
     });
-  });
-
+  }); //VG
+  it("Should check that a message is display if a user tries to create a booking without entering all the necessary information.", async () => {
+    render(
+      <>
+        <MemoryRouter initialEntries={["/Booking"]}>
+          <Routes>
+            <Route path="/Booking" element={<Booking />} />
+          </Routes>
+        </MemoryRouter>
+      </>
+    );
+    const strike_button = screen.getAllByRole("button");
+    strike_button[1].click();
+    render();
+    expect(
+      screen.getByText("Alla fälten måste vara ifyllda")
+    ).toBeInTheDocument();
+  }); //VG
   //Shoes
   it("A user should be able to enter a shoe size for all bowlers.", async () => {
     render(
@@ -249,7 +249,7 @@ describe("Booking", () => {
     expect(
       screen.getByText("Alla skor måste vara ifyllda")
     ).toBeInTheDocument();
-  });
+  }); //VG
   it("Should check that the amount of players and shoes needed is equal.", async () => {
     render(
       <>
@@ -282,13 +282,30 @@ describe("Booking", () => {
     for (let i = 0; i < 4; i++) {
       fireEvent.click(screen.getByText("+"));
     }
-    //Enter all the shoe sizes except one.
+    //Enter all the shoe sizes except one. 4 shoes for 5 players
     for (let index = 1; index < 5; index++) {
       let shoe = screen.getByLabelText(`Shoe size / person ${index}`);
       fireEvent.change(shoe, { target: { value: `3${index}` } });
       expect(shoe.value).toBe(`3${index}`);
     }
     const strike_button = screen.getAllByRole("button");
+    fireEvent.click(strike_button[5]);
+    expect(
+      screen.getByText("Antalet skor måste stämma överens med antal spelare")
+    ).toBeInTheDocument();
+
+    //Check that an error messages is displayed if there is more shoes than players.
+    //Add two more shoes that is one two many.
+    for (let i = 0; i < 2; i++) {
+      fireEvent.click(screen.getByText("+"));
+    }
+    //Enter two shoes more.
+    for (let index = 1; index < 3; index++) {
+      let shoe = screen.getByLabelText(`Shoe size / person ${index}`);
+      fireEvent.change(shoe, { target: { value: `3${index}` } });
+      expect(shoe.value).toBe(`3${index}`);
+    }
+
     fireEvent.click(strike_button[5]);
     expect(
       screen.getByText("Antalet skor måste stämma överens med antal spelare")
